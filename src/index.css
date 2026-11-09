@@ -1,9 +1,112 @@
 @import "tailwindcss";
 
-html, body, #root { margin: 0; height: 100%; width: 100%; overflow: hidden; background: #0b0e12; }
-body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #e8ecf0; user-select: none; }
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+html, body, #root { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #071018; }
+body { color: #edf4f8; user-select: none; }
 canvas { display: block; }
-input[type=range] { accent-color: #e7b84a; }
-.glass { background: rgba(12, 16, 22, 0.62); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.09); box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
-.btn { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); transition: all .15s; }
-.btn:hover { background: rgba(231,184,74,0.18); border-color: rgba(231,184,74,0.6); }
+.flight-shell { position: relative; width: 100%; height: 100%; overflow: hidden; background: #071018; }
+.world-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+.glass-panel { background: linear-gradient(145deg, rgba(8,19,29,.88), rgba(9,24,35,.72)); border: 1px solid rgba(126,181,204,.23); box-shadow: 0 12px 38px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.045); backdrop-filter: blur(13px); }
+.top-strip { position:absolute; z-index:5; inset:0 0 auto; height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 26px; background:linear-gradient(180deg,rgba(4,12,19,.92),rgba(4,12,19,.56)); border-bottom:1px solid rgba(145,190,208,.18); pointer-events:none; }
+.brand-lockup { display:flex; align-items:center; gap:12px; min-width:245px; }
+.brand-icon { width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(91,190,221,.55);border-radius:9px;color:#7ed6f0;font-size:19px;transform:rotate(-8deg); }
+.brand-lockup b { display:block;font-size:12px;letter-spacing:.2em;font-weight:750; }
+.brand-lockup small { display:block;margin-top:3px;font-size:8px;letter-spacing:.22em;color:#7f9ba9; }
+.top-center { display:flex;align-items:center;gap:11px;font-size:9px;letter-spacing:.17em;color:#b7cbd5; }
+.top-center i,.mini-status i,.control-hints i { height:12px;width:1px;background:rgba(153,190,205,.3); }
+.live-dot { width:7px;height:7px;border-radius:50%;background:#5ee2a0;box-shadow:0 0 10px #5ee2a0;display:inline-block; }
+.top-right { min-width:245px;display:flex;justify-content:flex-end;gap:16px;font-size:9px;letter-spacing:.16em;color:#92aab7; }
+.top-right span:first-child { color:#8de3ff; }
+.sim-time { color:#f1c66b!important; }
+.left-stack,.right-stack { position:absolute;z-index:4;top:82px;width:260px;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
+.left-stack { left:18px; }
+.right-stack { right:18px; }
+.location-card,.primary-instruments,.status-card,.compass-card,.throttle-card,.airport-card { padding:14px 15px;pointer-events:auto; }
+.panel-eyebrow,.section-heading,.instrument-label { font-size:8px;letter-spacing:.19em;color:#8ba8b8;font-weight:700; }
+.location-name { font-size:16px;font-weight:650;letter-spacing:.015em;margin:7px 0 11px; }
+.coordinate-row { display:flex;justify-content:space-between;gap:7px;font:8px ui-monospace,monospace;color:#7592a2; }
+.coordinate-row b { color:#d2e0e7;font-weight:500; }
+.section-heading { display:flex;align-items:center;justify-content:space-between;margin-bottom:13px; }
+.section-line { flex:1;height:1px;margin-left:12px;background:linear-gradient(90deg,rgba(111,170,194,.4),transparent); }
+.instrument { min-width:0; }
+.instrument-label { font-size:7px;letter-spacing:.12em; }
+.instrument-value { margin-top:5px;font:500 23px ui-monospace,SFMono-Regular,monospace;letter-spacing:-.06em;color:#eaf4f8; }
+.instrument-value small { font:700 8px ui-sans-serif,sans-serif;letter-spacing:.12em;color:#7795a4;margin-left:5px; }
+.instrument-value.accent { color:#f1c66b; }
+.instrument-divider { height:1px;background:rgba(143,180,196,.15);margin:13px 0; }
+.instrument-grid { display:grid;grid-template-columns:1fr 1fr;gap:13px 8px; }
+.attitude { display:flex;align-items:center;flex-direction:column;gap:7px; }
+.attitude-ring { width:104px;height:104px;border:2px solid #7893a1;border-radius:50%;overflow:hidden;position:relative;background:#142c3b;box-shadow:inset 0 0 0 4px #09151e; }
+.attitude-sky { position:absolute;inset:0 0 50%;background:linear-gradient(#1b6384,#5596ae); }
+.attitude-ground { position:absolute;inset:50% 0 0;background:linear-gradient(#775c43,#342c27); }
+.attitude-horizon { position:absolute;top:50%;left:0;right:0;height:2px;background:#f0e4c6; }
+.attitude-wing { position:absolute;top:50%;left:50%;width:72px;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:space-between; }
+.attitude-wing span { width:26px;height:3px;background:#f5c85e;border-radius:3px; }
+.attitude-wing i { width:8px;height:8px;border:2px solid #f5c85e;border-radius:50%; }
+.attitude-pitch { position:absolute;left:38px;width:28px;height:1px;background:rgba(255,255,255,.65); }
+.pitch-one {top:36px}.pitch-two {top:68px}
+.attitude-label { font-size:7px;letter-spacing:.2em;color:#7e9aa9; }
+.status-ok { color:#65dfa6;font-size:8px; }
+.status-row { display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(143,180,196,.11);font-size:8px;letter-spacing:.08em;color:#7995a4; }
+.status-row b { color:#d5e2e8;font-size:8px;letter-spacing:.1em; }
+.amber-text { color:#f1c66b!important; }.green-text {color:#65dfa6!important}
+.compass-dial { width:150px;height:150px;margin:2px auto 8px;border-radius:50%;border:1px solid rgba(130,180,198,.35);position:relative;background:radial-gradient(circle,rgba(30,57,70,.8),rgba(6,18,27,.8) 68%);box-shadow:inset 0 0 25px rgba(0,0,0,.6); }
+.compass-ticks { position:absolute;inset:8px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(182,210,219,.8) 0deg 1deg,transparent 1deg 15deg);mask:radial-gradient(circle,transparent 0 62%,#000 63% 66%,transparent 67%); }
+.compass-needle { position:absolute;left:50%;top:13px;width:2px;height:58px;background:linear-gradient(#f4c65d 0 50%,#7395a5 50%);transform-origin:50% 62px; }
+.compass-readout { position:absolute;top:59px;left:0;right:0;text-align:center;font:600 23px ui-monospace,monospace;color:#f2ca70; }
+.compass-readout small { display:block;font:7px ui-sans-serif,sans-serif;letter-spacing:.18em;color:#7998a8; }
+.compass-cardinals { display:flex;justify-content:space-between;padding:0 6px;color:#7895a5;font-size:8px;letter-spacing:.1em; }
+.throttle-card .section-heading b { font:600 12px ui-monospace,monospace; }
+.throttle-slider { width:100%;accent-color:#e9bd60;margin:7px 0; }
+.throttle-scale { display:flex;justify-content:space-between;font-size:7px;letter-spacing:.12em;color:#7895a5; }
+.throttle-actions { display:flex;gap:7px;margin-top:11px; }
+.throttle-actions button,.airport-action,.control-button { color:#c9d9e0;border:1px solid rgba(123,169,188,.25);background:rgba(99,146,166,.08);font-size:8px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;transition:.15s; }
+.throttle-actions button { flex:1; }
+.throttle-actions button:hover,.airport-action:hover,.control-button:hover { border-color:rgba(241,198,107,.7);background:rgba(241,198,107,.1); }
+.airport-name { font-size:13px;font-weight:750;letter-spacing:.12em;margin-top:7px; }
+.airport-code { color:#88a3b1;font-size:8px;letter-spacing:.15em;margin:5px 0 12px; }
+.airport-action { width:100%;display:flex;justify-content:space-between;color:#f0c76f; }
+.center-reticle { position:absolute;z-index:3;left:50%;top:50%;width:34px;height:34px;transform:translate(-50%,-50%);pointer-events:none;opacity:.75; }
+.center-reticle span,.center-reticle i {position:absolute;background:#e5f1ed;}
+.center-reticle span {left:16px;top:0;width:1px;height:34px}.center-reticle i {top:16px;left:0;width:34px;height:1px}
+.center-reticle b {position:absolute;left:13px;top:13px;width:7px;height:7px;border:1px solid #f3cb70;border-radius:50%}
+.bottom-left,.bottom-center { position:absolute;z-index:4;bottom:18px;display:flex;align-items:center;gap:10px;padding:10px 13px;pointer-events:none;font-size:7px;letter-spacing:.13em;color:#90a9b5; }
+.bottom-left {left:18px}
+.bottom-center {left:50%;transform:translateX(-50%);white-space:nowrap}
+.control-hints b {color:#f1c66b;font-weight:700}
+.bottom-right {position:absolute;z-index:5;right:18px;bottom:18px;display:flex;gap:6px}
+.control-button {display:flex;align-items:center;gap:7px;padding:9px 10px;background:rgba(8,19,29,.84);backdrop-filter:blur(10px)}
+.control-button span {font-size:12px;color:#f1c66b}
+.control-button kbd {font:7px ui-monospace,monospace;color:#7895a5;border:1px solid rgba(123,169,188,.3);padding:2px 4px}
+.control-button.active {border-color:rgba(241,198,107,.5)}
+.checklist {position:absolute;z-index:5;right:18px;bottom:66px;width:230px;padding:13px 14px}
+.checklist .section-heading button {background:none;border:0;color:#9ab0bb;font-size:18px;cursor:pointer}
+.check-item {display:flex;gap:8px;align-items:center;padding:5px 0;font-size:9px;color:#c2d2d9}
+.checkmark {color:#65dfa6}
+.check-note {border-top:1px solid rgba(143,180,196,.14);margin-top:8px;padding-top:9px;color:#7f9ba9;font-size:8px;line-height:1.5}
+.reticle-label {position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:7px;letter-spacing:.24em;color:rgba(213,232,239,.35);pointer-events:none}
+.boot-screen {position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 38%,#17374a,#071018 66%);text-align:center;padding:24px}
+.boot-mark {display:grid;place-items:center;width:58px;height:58px;border:1px solid rgba(126,214,240,.55);border-radius:16px;color:#83d8f2;font-size:25px;margin-bottom:25px}
+.boot-kicker {font-size:9px;letter-spacing:.3em;color:#91b6c5}
+.boot-screen h1 {font-size:clamp(30px,5vw,54px);font-weight:300;letter-spacing:.05em;margin:12px 0}
+.boot-screen p {font-size:12px;color:#88a4b2}
+.boot-progress {width:min(380px,80vw);height:3px;background:rgba(255,255,255,.12);margin-top:28px;overflow:hidden}
+.boot-progress span {display:block;height:100%;background:#e9bd60;transition:width .25s}
+.boot-status {margin-top:12px;font:9px ui-monospace,monospace;letter-spacing:.1em;color:#9bb4c0}
+.pause-overlay {position:absolute;z-index:10;inset:0;background:rgba(3,10,15,.72);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;backdrop-filter:blur(6px);font-size:19px;letter-spacing:.22em}
+.pause-overlay button {padding:12px 20px;background:#d7ae5b;color:#101820;font-size:9px;letter-spacing:.15em;font-weight:800;cursor:pointer}
+@media(max-width:900px) {
+ .left-stack,.right-stack {width:220px;top:74px}.left-stack{left:9px}.right-stack{right:9px}
+ .top-strip{height:55px;padding:0 12px}.brand-lockup,.top-right{min-width:auto}.top-center{font-size:7px}
+ .bottom-center{display:none}.bottom-left{left:9px;bottom:10px}.bottom-right{right:9px;bottom:10px;flex-direction:column}
+ .checklist{right:9px;bottom:150px}
+}
+@media(max-width:600px) {
+ .left-stack{width:174px}.right-stack{width:174px}.location-name{font-size:12px}
+ .primary-instruments,.status-card,.location-card,.compass-card,.throttle-card,.airport-card{padding:9px}
+ .instrument-value{font-size:17px}.instrument-grid{gap:8px 4px}.attitude-ring{width:78px;height:78px}
+ .compass-dial{width:112px;height:112px}.compass-needle{height:43px;transform-origin:50% 47px}.compass-readout{top:42px;font-size:17px}
+ .top-center{display:none}.top-right{font-size:7px;gap:8px}.brand-lockup b{font-size:10px}
+ .bottom-left{display:none}.bottom-right{gap:4px}.control-button{font-size:7px;padding:7px}
+ .checklist{width:195px;bottom:138px}
+}
