@@ -9,6 +9,7 @@ export class Controls {
   dom: HTMLElement;
   yaw = 0;
   pitch = 0;
+  roll = 0;
   vel = new THREE.Vector3();
   keys = new Set<string>();
   baseSpeed = 40;
@@ -86,6 +87,7 @@ export class Controls {
 
   setMode(m: 'fly' | 'walk') {
     this.mode = m;
+    if (m === 'walk') this.roll = 0;
     this.onModeChange?.(m);
   }
 
@@ -134,26 +136,29 @@ export class Controls {
       cam.updateProjectionMatrix();
     }
     const k = this.keys;
-    const f = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
-    const r = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
-    const u = (k.has('Space') || k.has('KeyE') ? 1 : 0) - (k.has('KeyC') || k.has('KeyQ') ? 1 : 0);
-    const boost = k.has('ShiftLeft') || k.has('ShiftRight') ? 4 : k.has('ControlLeft') ? 0.25 : 1;
+    const forwardInput = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
+    const lateralInput = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+    const verticalInput = (k.has('Space') || k.has('KeyE') ? 1 : 0) - (k.has('KeyC') || k.has('KeyQ') ? 1 : 0);
+    const boost = k.has('ShiftLeft') || k.has('ShiftRight') ? 1.65 : k.has('ControlLeft') ? 0.65 : 1;
     const gy = height(cam.position.x, cam.position.z);
-    const alt = Math.max(0, cam.position.y - gy);
     const sy = Math.sin(this.yaw), cy = Math.cos(this.yaw);
     const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
     const dir = new THREE.Vector3();
     let speed: number;
     if (this.mode === 'fly') {
-      speed = this.baseSpeed * boost * clamp(0.35 + alt / 90, 0.35, 40);
-      dir.set(-sy * cp * f + cy * r, sp * f + u, -cy * cp * f - sy * r);
+      // W/S pitch, A/D bank into a coordinated turn, throttle controls airspeed.
+      this.pitch = clamp(this.pitch + forwardInput * dt * 0.52, -0.62, 0.62);
+      this.roll += (lateralInput * 0.62 - this.roll * 1.7) * dt;
+      this.yaw -= this.roll * dt * 0.58;
+      speed = this.baseSpeed * boost;
+      dir.set(-sy * cp, sp, -cy * cp);
     } else {
-      speed = (this.baseSpeed > 40 ? 8 : 5.2) * boost * 0.9;
-      dir.set(-sy * f + cy * r, 0, -cy * f - sy * r);
+      speed = 5.2 * boost;
+      dir.set(-sy * forwardInput + cy * lateralInput, verticalInput, -cy * forwardInput - sy * lateralInput);
     }
     if (dir.lengthSq() > 1) dir.normalize();
     const target = dir.multiplyScalar(speed);
-    this.vel.lerp(target, 1 - Math.exp(-dt * (this.mode === 'fly' ? 5 : 12)));
+    this.vel.lerp(target, 1 - Math.exp(-dt * (this.mode === 'fly' ? 2.8 : 12)));
     cam.position.addScaledVector(this.vel, dt);
     if (this.mode === 'walk') {
       this.collide(cam.position);
@@ -168,7 +173,7 @@ export class Controls {
     cam.position.x = clamp(cam.position.x, -6400, 6400);
     cam.position.z = clamp(cam.position.z, -6400, 6400);
     cam.rotation.order = 'YXZ';
-    cam.rotation.set(this.pitch, this.yaw, 0);
+    cam.rotation.set(this.pitch, this.yaw, this.mode === 'fly' ? this.roll : 0);
     this.groundY = gy;
   }
 }
