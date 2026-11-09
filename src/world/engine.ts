@@ -124,7 +124,7 @@ export class WorldEngine {
     this.controls.setColliders([...this.city.colliders, ...this.estate.colliders, ...this.hospital.colliders]);
     this.atmo.setTime(15.2);
     const runwayY = height(AIRPORT.x, AIRPORT.z);
-    this.controls.lookAt(new THREE.Vector3(AIRPORT.x, runwayY + 18, AIRPORT.z + 920), new THREE.Vector3(AIRPORT.x, runwayY + 8, AIRPORT.z - 500));
+    this.controls.lookAt(new THREE.Vector3(AIRPORT.x, runwayY + 5, AIRPORT.z + 920), new THREE.Vector3(AIRPORT.x, runwayY + 5, AIRPORT.z - 500));
     this.controls.setMode('fly');
     this.setQuality('high');
     progress(1, 'Ready');
@@ -172,7 +172,7 @@ export class WorldEngine {
     switch (id) {
       case 'airport': {
         const ay = height(AIRPORT.x, AIRPORT.z);
-        c.lookAt(V(AIRPORT.x, ay + 18, AIRPORT.z + 920), V(AIRPORT.x, ay + 8, AIRPORT.z - 500));
+        c.lookAt(V(AIRPORT.x, ay + 5, AIRPORT.z + 920), V(AIRPORT.x, ay + 5, AIRPORT.z - 500));
         break;
       }
       case 'overview':
