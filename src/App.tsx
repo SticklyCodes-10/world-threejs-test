@@ -68,7 +68,6 @@ export default function App() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.code === 'KeyR' && engineRef.current) engineRef.current.teleport('airport');
-      if (event.code === 'KeyG' && engineRef.current) setGearDown((v) => !v);
       if (event.code === 'KeyP' && engineRef.current) {
         setPaused((v) => {
           if (v) engineRef.current?.start();
@@ -84,7 +83,6 @@ export default function App() {
   const speed = hud?.speed ?? 0;
   const altitude = hud?.alt ?? 0;
   const heading = hud?.heading ?? 0;
-  const verticalSpeed = hud ? Math.round((hud.y - (hud.alt + 0)) * 0) : 0;
   const phase = speed < 8 ? 'PARKED' : speed < 70 ? 'TAXI / TAKEOFF' : altitude < 120 ? 'INITIAL CLIMB' : 'EN ROUTE';
 
   return <main className="flight-shell">
@@ -109,7 +107,7 @@ export default function App() {
         <section className="glass-panel location-card">
           <div className="panel-eyebrow">CURRENT POSITION</div>
           <div className="location-name">{hud?.place ?? 'Verrin Regional'}</div>
-          <div className="coordinate-row"><span>LAT <b>{(6.03 + (hud?.z ?? 0) / 111000).toFixed(3)}° N</b></span><span>LON <b>{(80.22 + (hud?.x ?? 0) / 111000).toFixed(3)}° E</b></span></div>
+          <div className="coordinate-row"><span>GRID X <b>{hud?.x ?? 0} M</b></span><span>GRID Z <b>{hud?.z ?? 0} M</b></span></div>
         </section>
         <section className="glass-panel primary-instruments">
           <div className="section-heading"><span>FLIGHT DATA</span><span className="section-line"/></div>
@@ -119,7 +117,7 @@ export default function App() {
             <Instrument label="ALTITUDE" value={altitude.toLocaleString()} unit="M"/>
             <Instrument label="HEADING" value={pad(heading)} unit="°"/>
             <Instrument label="GROUND SPEED" value={speed} unit="KM/H"/>
-            <Instrument label="VERTICAL SPEED" value={verticalSpeed} unit="M/M"/>
+            <Instrument label="FLIGHT MODE" value={(hud?.mode ?? "fly").toUpperCase()} />
           </div>
           <div className="instrument-divider"/>
           <AttitudeIndicator/>
@@ -155,7 +153,7 @@ export default function App() {
       <div className="center-reticle"><span/><i/><b/></div>
       <div className="bottom-left glass-panel mini-status"><span className="live-dot"/> WORLD STREAMING <i/> THREE.JS · PROCEDURAL TERRAIN</div>
       <div className="bottom-center glass-panel control-hints">
-        <div><b>W / S</b> PITCH & SPEED</div><i/><div><b>A / D</b> BANK / TURN</div><i/><div><b>SPACE / C</b> CLIMB / DESCEND</div><i/><div><b>CLICK + DRAG</b> LOOK</div>
+        <div><b>W / S</b> FORWARD / REVERSE</div><i/><div><b>A / D</b> STRAFE</div><i/><div><b>SPACE / C</b> CLIMB / DESCEND</div><i/><div><b>CLICK + DRAG</b> LOOK</div>
       </div>
       <div className="bottom-right">
         <button className={gearDown ? 'control-button active' : 'control-button'} onClick={() => setGearDown(!gearDown)}><span>▤</span> GEAR {gearDown ? 'DOWN' : 'UP'} <kbd>G</kbd></button>
