@@ -39,7 +39,7 @@ export default function App() {
     engine.init((p, label) => alive && setProgress({ p, label })).then(() => {
       if (!alive) return;
       engine.start();
-      engine.setBaseSpeed(20 + throttle * 1.2);
+      engine.setBaseSpeed(20 + throttle * 0.8);
       (window as any).__flightWorld = engine;
       setReady(true);
     }).catch((e) => {
@@ -62,7 +62,7 @@ export default function App() {
   const setPower = (value: number) => {
     const next = clamp(value, 0, 100);
     setThrottle(next);
-    if (engineRef.current) engineRef.current.setBaseSpeed(20 + next * 1.2);
+    if (engineRef.current) engineRef.current.setBaseSpeed(20 + next * 0.8);
   };
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export default function App() {
       <div className="center-reticle"><span/><i/><b/></div>
       <div className="bottom-left glass-panel mini-status"><span className="live-dot"/> WORLD STREAMING <i/> THREE.JS · PROCEDURAL TERRAIN</div>
       <div className="bottom-center glass-panel control-hints">
-        <div><b>W / S</b> FORWARD / REVERSE</div><i/><div><b>A / D</b> STRAFE</div><i/><div><b>SPACE / C</b> CLIMB / DESCEND</div><i/><div><b>CLICK + DRAG</b> LOOK</div>
+        <div><b>W / S</b> PITCH</div><i/><div><b>A / D</b> BANK / TURN</div><i/><div><b>SHIFT</b> BOOST</div><i/><div><b>CLICK + DRAG</b> LOOK</div>
       </div>
       <div className="bottom-right">
         <button className={gearDown ? 'control-button active' : 'control-button'} onClick={() => setGearDown(!gearDown)}><span>▤</span> GEAR {gearDown ? 'DOWN' : 'UP'} <kbd>G</kbd></button>
