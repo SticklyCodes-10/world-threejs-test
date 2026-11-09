@@ -1,6 +1,7 @@
 // Orchestrates all world systems, rendering loop, teleports and HUD data.
 import * as THREE from 'three';
 import { Atmosphere } from './atmosphere';
+import { AirportSystem, AIRPORT } from './airport';
 import { CitySystem } from './city';
 import { ESTATE, HOSPITAL, LAKE, RELAY, VILLAGES } from './config';
 import { Controls } from './controls';
@@ -46,6 +47,7 @@ export class WorldEngine {
   estate!: EstateSystem;
   hospital!: HospitalSystem;
   infra!: InfrastructureSystem;
+  airport!: AirportSystem;
   controls!: Controls;
   minimap!: HTMLCanvasElement;
   canvas: HTMLCanvasElement;
@@ -110,6 +112,7 @@ export class WorldEngine {
 
     progress(0.85, 'Erecting remote infrastructure');
     this.infra = new InfrastructureSystem(this.scene);
+    this.airport = new AirportSystem(this.scene);
     await tick();
 
     progress(0.88, 'Growing forests');
@@ -120,7 +123,8 @@ export class WorldEngine {
     this.minimap = buildMinimap(360, this.city.blocks);
     this.controls.setColliders([...this.city.colliders, ...this.estate.colliders, ...this.hospital.colliders]);
     this.atmo.setTime(15.2);
-    this.controls.lookAt(start, new THREE.Vector3(0, 40, -500));
+    const runwayY = height(AIRPORT.x, AIRPORT.z);
+    this.controls.lookAt(new THREE.Vector3(AIRPORT.x, runwayY + 18, AIRPORT.z + 920), new THREE.Vector3(AIRPORT.x, runwayY + 8, AIRPORT.z - 500));
     this.controls.setMode('fly');
     this.setQuality('high');
     progress(1, 'Ready');
@@ -166,6 +170,11 @@ export class WorldEngine {
     const g = (x: number, z: number) => height(x, z);
     c.setMode('fly');
     switch (id) {
+      case 'airport': {
+        const ay = height(AIRPORT.x, AIRPORT.z);
+        c.lookAt(V(AIRPORT.x, ay + 18, AIRPORT.z + 920), V(AIRPORT.x, ay + 8, AIRPORT.z - 500));
+        break;
+      }
       case 'overview':
         c.lookAt(V(-2400, 760, 2900), V(0, 40, -500));
         break;
