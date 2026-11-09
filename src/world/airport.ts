@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { height } from './heightfield';
 
 // A compact regional airport placed on the open western edge of Verrin.
-export const AIRPORT = { x: -4200, z: 700 };
+export const AIRPORT = { x: -2500, z: 0 };
 
 export class AirportSystem {
   group = new THREE.Group();
